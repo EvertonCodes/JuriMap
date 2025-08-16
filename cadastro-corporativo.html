@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cadastro - JuriMap</title>
+  <link rel="shortcut icon" href="assets/img/balanca-da-justica.png" type="image/x-icon">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/inputmask/dist/inputmask.min.js"></script>
+  <style>
+    .container {
+      max-width: 800px;
+      padding: 30px;
+    }
+
+    .form-label {
+      font-weight: bold;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="container mt-5">
+
+ <!-- Seta de voltar -->
+    <a href="index.html" class="btn btn-outline-secondary mb-3">
+      ←
+    </a>
+
+    <h2 class="text-center mb-4">Cadastro no JuriMap</h2>
+
+    <div class="row mb-4">
+      <div class="col-12 text-center">
+        <h3><strong>Plano Selecionado:</strong> <span id="plano-selecionado">Plano Corporativo</span></h3>
+      </div>
+    </div>
+
+    <form action="processa_cadastro.php" method="POST" id="cadastro-form">
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          <label for="nome" class="form-label">Nome Completo</label>
+          <input type="text" class="form-control" id="nome" name="nome" placeholder="Digite seu nome completo" required>
+        </div>
+        <div class="col-md-6 mb-3">
+          <label for="numero" class="form-label">Número de Celular</label>
+          <input type="text" class="form-control" id="numero" name="numero" placeholder="Ex: (+55) 81 91234-5678" required>
+        </div>
+      </div>
+
+      <div class="mb-3">
+        <label for="email" class="form-label">E-mail</label>
+        <input type="email" class="form-control" id="email" name="email" placeholder="Digite seu e-mail" required>
+      </div>
+
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          <label for="senha" class="form-label">Senha</label>
+          <input type="password" class="form-control" id="senha" name="senha" placeholder="Crie uma senha" required>
+        </div>
+        <div class="col-md-6 mb-3">
+          <label for="confirma_senha" class="form-label">Confirmar Senha</label>
+          <input type="password" class="form-control" id="confirma_senha" name="confirma_senha" placeholder="Repita a senha" required>
+        </div>
+      </div>
+
+      <h4>Escolha a Forma de Pagamento</h4>
+      <div class="mb-3">
+        <label class="form-check-label">Escolha o método de pagamento:</label><br>
+        <input type="radio" id="pix" name="pagamento" value="pix" class="form-check-input" checked> Pix
+        <input type="radio" id="cartao" name="pagamento" value="cartao" class="form-check-input ms-3"> Cartão de Crédito
+      </div>
+
+      <div class="mb-3" id="cpf-div" style="display: block;">
+        <label for="cpf" class="form-label">CPF</label>
+        <input type="text" class="form-control" id="cpf" name="cpf" placeholder="Digite seu CPF (somente números)" required>
+      </div>
+
+      <div id="dados-cartao" style="display: none;">
+        <h4>Informações do Cartão de Crédito</h4>
+        <div class="mb-3">
+          <label for="nome_cartao" class="form-label">Nome no Cartão</label>
+          <input type="text" class="form-control" id="nome_cartao" name="nome_cartao" placeholder="Nome como no cartão" required>
+        </div>
+        <div class="mb-3">
+          <label for="numero_cartao" class="form-label">Número do Cartão</label>
+          <input type="text" class="form-control" id="numero_cartao" name="numero_cartao" placeholder="Digite o número do cartão" required>
+        </div>
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label for="validade_cartao" class="form-label">Validade (MM/AA)</label>
+            <input type="text" class="form-control" id="validade_cartao" name="validade_cartao" placeholder="MM/AA" required>
+          </div>
+          <div class="col-md-6 mb-3">
+            <label for="cvv_cartao" class="form-label">CVV</label>
+            <input type="text" class="form-control" id="cvv_cartao" name="cvv_cartao" placeholder="Código de segurança (CVV)" required>
+          </div>
+        </div>
+      </div>
+
+      <div class="mb-3">
+        <button type="submit" class="btn btn-primary w-100">Cadastrar</button>
+      </div>
+    </form>
+  </div>
+
+  <script>
+    $(document).ready(function () {
+      $("input[name='pagamento']").change(function () {
+        if ($("#cartao").is(":checked")) {
+          $("#dados-cartao").show();
+          $("#cpf-div").hide();
+        } else {
+          $("#dados-cartao").hide();
+          $("#cpf-div").show();
+        }
+      });
+
+      // Máscaras
+      Inputmask("(+99) 99999-9999").mask("#numero");
+      Inputmask("99/99").mask("#validade_cartao");
+      Inputmask("9999 9999 9999 9999").mask("#numero_cartao");
+      Inputmask("999").mask("#cvv_cartao");
+      Inputmask("99999999999").mask("#cpf");
+
+      // Nome no cartão - apenas letras e espaços
+      $("#nome_cartao").on("input", function () {
+        let valor = $(this).val();
+        $(this).val(valor.replace(/[^A-Za-zÀ-ÿ\s]/g, ""));
+      });
+
+      $("#cadastro-form").submit(function (event) {
+        var senha = $("#senha").val();
+        var confirmaSenha = $("#confirma_senha").val();
+        if (senha !== confirmaSenha) {
+          alert("As senhas não correspondem!");
+          event.preventDefault();
+          return false;
+        }
+
+        // Validação de CPF com apenas números
+        if ($("#cpf-div").is(":visible")) {
+          var cpf = $("#cpf").val();
+          var cpfRegex = /^\d{11}$/;
+          if (!cpfRegex.test(cpf)) {
+            alert("CPF inválido! Digite apenas números (11 dígitos).");
+            event.preventDefault();
+            return false;
+          }
+        }
+
+        if ($("#cartao").is(":checked")) {
+          var nomeCartao = $("#nome_cartao").val();
+          var numeroCartao = $("#numero_cartao").val();
+          var validade = $("#validade_cartao").val();
+          var cvv = $("#cvv_cartao").val();
+          if (!nomeCartao || !numeroCartao || !validade || !cvv) {
+            alert("Todos os campos de cartão de crédito devem ser preenchidos.");
+            event.preventDefault();
+            return false;
+          }
+        }
+      });
+    });
+  </script>
+
+</body>
+
+</html>
